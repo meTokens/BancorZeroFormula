@@ -16,7 +16,7 @@ contract Vault {
 
     /// @dev The ratio of how much collateral "backs" the total marketcap of the Token (eg, creates the shape of the curve)
     uint256 constant reserveWeight;
-    /// @dev The intersecting price to mint or burn a token when supply == 1 (eg, creates the slope of the curve)
+    /// @dev The intersecting price to mint or burn a Token when supply == 1 (eg, creates the slope of the curve)
     uint256 constant baseY;
 
     /// @dev The amount of collateral "backing" the total marketcap of the Token
@@ -37,7 +37,7 @@ contract Vault {
         uint256 _collateralDeposited,
         uint256 _recipient
     ) external view override returns (uint256 tokensReturned) {
-        uint256 supply = token.getSupply();
+        uint256 supply = token.totalSupply();
         if (_supply > 0) {
             tokensReturned = _calculatePurchaseReturn(
                 _collateralDeposited,
@@ -62,7 +62,7 @@ contract Vault {
     function burn(
         uint256 _tokensBurned,
     ) external view override returns (uint256 collateralReturned) {
-        uint256 supply = token.getSupply();
+        uint256 supply = token.totalSupply();
         collateralReturned = _calculateSaleReturn(
             _meTokensBurned,
             reserveWeight,
