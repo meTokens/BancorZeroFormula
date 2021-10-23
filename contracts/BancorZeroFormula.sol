@@ -68,18 +68,19 @@ contract BancorZeroForumula {
         uint256 _baseX,
         uint256 _baseY
     ) private view returns (uint256) {
-        // (MAX_WEIGHT/reserveWeight -1)
+        // (MAX_WEIGHT/reserveWeight)
         bytes16 exponent = uint256(maxWeight)
             .fromUInt()
-            .div(_reserveWeight.fromUInt())
-            .sub(_one);
-        // Instead of calculating "x ^ exp", we calculate "e ^ (log(x) * exp)".
-        // _baseY ^ (MAX_WEIGHT/reserveWeight -1)
-        bytes16 denominator = (_baseY.fromUInt().ln().mul(exponent)).exp();
-        // ( baseX * tokensDeposited  ^ (MAX_WEIGHT/reserveWeight -1) ) /  _baseY ^ (MAX_WEIGHT/reserveWeight -1)
-        bytes16 res = _baseX
-            .mul(_tokensDeposited.fromUInt().ln().mul(exponent).exp())
-            .div(denominator);
+            .div(_reserveWeight.fromUInt());
+        // baseX ^ (MAX_WEIGHT/reserveWeight)
+        bytes16 denominator_denominator = (_baseX.fromUInt().ln().mul(exponent).exp());
+        // Instead of calculating "x ^ exp", we calculate "e ^ (log(x) * exp)"
+        // reserveWeight * baseX * baseY
+        bytes16 denominator = _reserveWeight.mul(_baseX).mul(_baseY);
+        // tokensDeposited / (reserveWeight * baseX * baseY) / baseX ^ (MAX_WEIGHT/reserveWeight)
+        bytes16 base = _tokensDeposited.div(denominator).div(denominator_denominator);
+        // [tokensDeposited / (reserveWeight * baseX * baseY) / baseX ^ (MAX_WEIGHT/reserveWeight)] ^ reserveWeight
+        bytes16 res = (base.fromUInt().ln().mul(_reserveWeight).exp());
         return res.toUInt();
     }
 
