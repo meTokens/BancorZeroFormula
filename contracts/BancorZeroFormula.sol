@@ -56,7 +56,7 @@ contract BancorZeroForumula {
 
     /// @notice Given a deposit (in the collateral token) Token supply of 0, constant x and
     ///         constant y, calculates the return for a given conversion (in the Token)
-    /// @dev  _baseX / (_baseY ^ (MAX_WEIGHT/reserveWeight -1)) * tokensDeposited ^(MAX_WEIGHT/reserveWeight -1)
+    /// @dev  [tokensDeposited / (reserveWeight * baseX * baseY) / baseX ^ (MAX_WEIGHT/reserveWeight)] ^ reserveWeight
     /// @dev  _baseX and _baseY are needed as Bancor formula breaks from a divide-by-0 when supply=0
     /// @param _tokensDeposited     amount of collateral tokens to deposit
     /// @param _baseX               constant x (arbitrary point in supply)
