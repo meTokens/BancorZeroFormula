@@ -31,6 +31,7 @@ contract Vault {
         reserveWeight = _reserveWeight;
         baseY = _baseY;
         collateral = _collateral;
+        balancePooled = 0;
     }
 
     function mint(
