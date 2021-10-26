@@ -15,7 +15,7 @@ contract Vault {
     address constant collateral;
 
     /// @dev The ratio of how much collateral "backs" the total marketcap of the Token (eg, creates the shape of the curve)
-    uint256 constant reserveWeight;
+    uint256 constant connectorWeight;
     /// @dev The intersecting price to mint or burn a Token when supply == 1 (eg, creates the slope of the curve)
     uint256 constant baseY;
 
@@ -23,12 +23,12 @@ contract Vault {
     uint256 balancePooled;
 
     constructor(
-        uint256 _reserveWeight,
+        uint256 _connectorWeight,
         uint256 _baseY,
         address _collateral
     ){
-        require(_reserveWeight <= 1000000 && _reserveWeight > 0);
-        reserveWeight = _reserveWeight;
+        require(_connectorWeight <= 1000000 && _connectorWeight > 0);
+        connectorWeight = _connectorWeight;
         baseY = _baseY;
         collateral = _collateral;
         balancePooled = 0;
@@ -42,14 +42,14 @@ contract Vault {
         if (_supply > 0) {
             tokensReturned = _calculatePurchaseReturn(
                 _collateralDeposited,
-                reserveWeight,
+                connectorWeight,
                 supply,
                 balancePooled
             );
         } else {
             tokensReturned = _calculatePurchaseFromZero(
                 _collateralDeposited,
-                reserveWeight,
+                connectorWeight,
                 PRECISION,
                 baseY
             );
@@ -66,7 +66,7 @@ contract Vault {
         uint256 supply = token.totalSupply();
         collateralReturned = _calculateSaleReturn(
             _meTokensBurned,
-            reserveWeight,
+            connectorWeight,
             supply,
             balancePooled
         );
