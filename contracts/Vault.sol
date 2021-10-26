@@ -20,7 +20,7 @@ contract Vault {
     uint256 constant baseY;
 
     /// @dev The amount of collateral "backing" the total marketcap of the Token
-    uint256 collateralPooled;
+    uint256 balancePooled;
 
     constructor(
         uint256 _reserveWeight,
@@ -70,7 +70,7 @@ contract Vault {
             balancePooled
         );
 
-        collateralPooled -= collatearlReturned;
+        balancePooled -= collatearlReturned;
         IERC20(collateral).transferFrom(address(this), msg.sender, collateralReturned);
         IERC20(token).burn(msg.sender, _tokensBurned);
     }
