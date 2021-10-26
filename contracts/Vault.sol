@@ -20,7 +20,7 @@ contract Vault {
     uint256 constant baseY;
 
     /// @dev The amount of collateral "backing" the total marketcap of the Token
-    uint256 balancePooled;
+    uint256 connectorBalance;
 
     constructor(
         uint256 _connectorWeight,
@@ -31,7 +31,7 @@ contract Vault {
         connectorWeight = _connectorWeight;
         baseY = _baseY;
         collateral = _collateral;
-        balancePooled = 0;
+        connectorBalance = 0;
     }
 
     function mint(
@@ -44,7 +44,7 @@ contract Vault {
                 _collateralDeposited,
                 connectorWeight,
                 supply,
-                balancePooled
+                connectorBalance
             );
         } else {
             tokensReturned = _calculatePurchaseFromZero(
@@ -55,7 +55,7 @@ contract Vault {
             );
         }
 
-        balancePooled += _collateralDeposited;
+        connectorBalance += _collateralDeposited;
         IERC20(collateral).transferFrom(msg.sender, address(this), _collateralDeposited);
         IERC20(token).mint(_recipient, tokensReturned);
     }
@@ -68,10 +68,10 @@ contract Vault {
             _meTokensBurned,
             connectorWeight,
             supply,
-            balancePooled
+            connectorBalance
         );
 
-        balancePooled -= collatearlReturned;
+        connectorBalance -= collatearlReturned;
         IERC20(collateral).transferFrom(address(this), msg.sender, collateralReturned);
         IERC20(token).burn(msg.sender, _tokensBurned);
     }

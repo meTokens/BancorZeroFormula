@@ -14,21 +14,21 @@ contract BancorZeroForumula {
 
     /// @notice Given a deposit (in the connector token), reserve weight, Token supply and
     ///     balance pooled, calculate the return for a given conversion (in the Token)
-    /// @dev _supply * ((1 + _tokensDeposited / _balancePooled) ^ (_connectorWeight / 1000000) - 1)
+    /// @dev _supply * ((1 + _tokensDeposited / _connectorBalance) ^ (_connectorWeight / 1000000) - 1)
     /// @param _tokensDeposited   amount of collateral tokens to deposit
     /// @param _connectorWeight   connector weight, represented in ppm, 1 - 1,000,000
     /// @param _supply          current Token supply
-    /// @param _balancePooled   total connector balance
+    /// @param _connectorBalance   total connector balance
     /// @return amount of Tokens minted
     function _calculateMintReturn(
         uint256 _tokensDeposited,
         uint32 _connectorWeight,
         uint256 _supply,
-        uint256 _balancePooled
+        uint256 _connectorBalance
     ) private view returns (uint256) {
         // validate input
         require(
-            _balancePooled > 0 &&
+            _connectorBalance > 0 &&
                 _connectorWeight > 0 &&
                 _connectorWeight <= maxWeight
         );
@@ -38,14 +38,14 @@ contract BancorZeroForumula {
         }
         // special case if the weight = 100%
         if (_connectorWeight == maxWeight) {
-            return (_supply * _tokensDeposited) / _balancePooled;
+            return (_supply * _tokensDeposited) / _connectorBalance;
         }
 
         bytes16 exponent = uint256(_connectorWeight).fromUInt().div(
             uint256(maxWeight).fromUInt()
         );
         bytes16 part1 = _one.add(
-            _tokensDeposited.fromUInt().div(_balancePooled.fromUInt())
+            _tokensDeposited.fromUInt().div(_connectorBalance.fromUInt())
         );
         //Instead of calculating "base ^ exp", we calculate "e ^ (log(base) * exp)".
         bytes16 res = _supply.fromUInt().mul(
@@ -86,22 +86,22 @@ contract BancorZeroForumula {
 
     /// @notice Given an amount of Tokens to burn, connector weight, supply and collateral pooled,
     ///     calculates the return for a given conversion (in the collateral token)
-    /// @dev _balancePooled * (1 - (1 - _TokensBurned/_supply) ^ (1 / (_connectorWeight / 1000000)))
+    /// @dev _connectorBalance * (1 - (1 - _TokensBurned/_supply) ^ (1 / (_connectorWeight / 1000000)))
     /// @param _TokensBurned        amount of Tokens to burn
     /// @param _connectorWeight       connector weight, represented in ppm, 1 - 1,000,000
     /// @param _supply              current Token supply
-    /// @param _balancePooled       total connector balance
+    /// @param _connectorBalance       total connector balance
     /// @return amount of collateral tokens received
     function _calculateBurnReturn(
         uint256 _TokensBurned,
         uint32 _connectorWeight,
         uint256 _supply,
-        uint256 _balancePooled
+        uint256 _connectorBalance
     ) private view returns (uint256) {
         // validate input
         require(
             _supply > 0 &&
-                _balancePooled > 0 &&
+                _connectorBalance > 0 &&
                 _connectorWeight > 0 &&
                 _connectorWeight <= maxWeight &&
                 _TokensBurned <= _supply
@@ -112,11 +112,11 @@ contract BancorZeroForumula {
         }
         // special case for selling the entire supply
         if (_TokensBurned == _supply) {
-            return _balancePooled;
+            return _connectorBalance;
         }
         // special case if the weight = 100%
         if (_connectorWeight == maxWeight) {
-            return (_balancePooled * _TokensBurned) / _supply;
+            return (_connectorBalance * _TokensBurned) / _supply;
         }
         // 1 / (connectorWeight/MAX_WEIGHT)
         bytes16 exponent = _one.div(
@@ -129,9 +129,9 @@ contract BancorZeroForumula {
             _TokensBurned.fromUInt().div(_supply.fromUInt())
         );
         // Instead of calculating "s ^ exp", we calculate "e ^ (log(s) * exp)".
-        // balancePooled - ( balancePooled * s ^ exp))
-        bytes16 res = _balancePooled.fromUInt().sub(
-            _balancePooled.fromUInt().mul(s.ln().mul(exponent).exp())
+        // connectorBalance - ( connectorBalance * s ^ exp))
+        bytes16 res = _connectorBalance.fromUInt().sub(
+            _connectorBalance.fromUInt().mul(s.ln().mul(exponent).exp())
         );
         return res.toUInt();
     }
