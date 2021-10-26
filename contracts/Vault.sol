@@ -16,7 +16,7 @@ contract Vault {
 
     /// @dev The ratio of how much collateral "backs" the total marketcap of the Token (eg, creates the shape of the curve)
     uint256 constant connectorWeight;
-    /// @dev The intersecting price to mint or burn a Token when supply == 1 (eg, creates the slope of the curve)
+    /// @dev The intersecting price to mint or burn a Token when supply == PRECISION (eg, creates the slope of the curve)
     uint256 constant baseY;
 
     /// @dev The amount of collateral "backing" the total marketcap of the Token
