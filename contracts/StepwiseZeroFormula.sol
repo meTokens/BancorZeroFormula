@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import "../utils/ABDKMathQuad.sol";
 
-/// @title Bancor Zero Formula
-/// @author Carl Farterson (@carlfarterson), Chris Robison (@cbobrobison), Benjamin (@zgorizzo69)
-contract BancorZeroForumula {
+/// @title Stepwise Zero Formula
+/// @author Chris Robison (@cbobrobison)
+contract StepwiseZeroForumula {
     using ABDKMathQuad for uint256;
     using ABDKMathQuad for bytes16;
 
