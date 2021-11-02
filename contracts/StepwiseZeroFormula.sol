@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-import "../utils/ABDKMathQuad.sol";
+import "./utils/ABDKMathQuad.sol";
 
-/// @title Stepwise Zero Formula
-/// @author Chris Robison (@cbobrobison)
-contract StepwiseZeroForumula {
+/// @title Bancor Zero Formula
+/// @author Carl Farterson (@carlfarterson), Chris Robison (@cbobrobison), Benjamin (@zgorizzo69)
+contract BancorZeroFormula {
     using ABDKMathQuad for uint256;
     using ABDKMathQuad for bytes16;
 
@@ -20,12 +20,12 @@ contract StepwiseZeroForumula {
     /// @param _supply          current Token supply
     /// @param _connectorBalance   total connector balance
     /// @return amount of Tokens minted
-    function _calculateMintReturn(
+    function _calculatePurchaseReturn(
         uint256 _tokensDeposited,
         uint32 _connectorWeight,
         uint256 _supply,
         uint256 _connectorBalance
-    ) private view returns (uint256) {
+    ) internal view returns (uint256) {
         // validate input
         require(
             _connectorBalance > 0 &&
@@ -62,21 +62,22 @@ contract StepwiseZeroForumula {
     /// @param _baseX               constant x (arbitrary point in supply)
     /// @param _baseY               constant y (expected price at the arbitrary point in supply)
     /// @return amount of Tokens minted
-    function _calculateMintReturnFromZero(
+    function _calculatePurchaseReturnFromZero(
         uint256 _tokensDeposited,
         uint256 _connectorWeight,
         uint256 _baseX,
         uint256 _baseY
+    ) internal view returns (uint256) {
     // (MAX_WEIGHT/reserveWeight -1)
         bytes16 exponent = uint256(maxWeight)
             .fromUInt()
-            .div(_reserveWeight.fromUInt())
+            .div(_connectorWeight.fromUInt())
             .sub(_one);
         // Instead of calculating "x ^ exp", we calculate "e ^ (log(x) * exp)".
         // _baseY ^ (MAX_WEIGHT/reserveWeight -1)
         bytes16 denominator = (_baseY.fromUInt().ln().mul(exponent)).exp();
         // ( baseX * tokensDeposited  ^ (MAX_WEIGHT/reserveWeight -1) ) /  _baseY ^ (MAX_WEIGHT/reserveWeight -1)
-        bytes16 res = _baseX
+        bytes16 res = _baseX.fromUInt()
             .mul(_tokensDeposited.fromUInt().ln().mul(exponent).exp())
             .div(denominator);
         return res.toUInt();
@@ -90,12 +91,12 @@ contract StepwiseZeroForumula {
     /// @param _supply              current Token supply
     /// @param _connectorBalance       total connector balance
     /// @return amount of collateral tokens received
-    function _calculateBurnReturn(
+    function _calculateSaleReturn(
         uint256 _TokensBurned,
         uint32 _connectorWeight,
         uint256 _supply,
         uint256 _connectorBalance
-    ) private view returns (uint256) {
+    ) internal view returns (uint256) {
         // validate input
         require(
             _supply > 0 &&

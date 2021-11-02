@@ -14,11 +14,11 @@ contract Token is ERC20Burnable, Ownable {
         version = "0.2";
     }
 
-    function mint(address to, uint256 amount) onlyOwner {
+    function mint(address to, uint256 amount) onlyOwner external {
         _mint(to, amount);
     }
 
-    function burn(address from, uint256 value) onlyOwner {
+    function burn(address from, uint256 value) onlyOwner external {
         _burn(from, value);
     }
 }
